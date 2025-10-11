@@ -1,15 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import type { Payslip } from '../types';
-
-const payslipsData: Payslip[] = [
-    { id: '1', monthYear: 'January 2024', amount: '₦120,000.00' },
-    { id: '2', monthYear: 'December 2023', amount: '₦150,000.00' },
-    { id: '3', monthYear: 'November 2023', amount: '₦110,000.00' },
-    { id: '4', monthYear: 'October 2023', amount: '₦125,000.00' },
-    { id: '5', monthYear: 'September 2023', amount: '₦180,000.00' },
-    { id: '6', monthYear: 'August 2023', amount: '₦95,000.00' },
-];
+import { getFirestoreData } from '../services/api';
 
 const PayslipItem: React.FC<{ payslip: Payslip }> = ({ payslip }) => (
     <Link to={`/payslip/${payslip.id}`} className="flex items-center justify-between py-4 group">
@@ -29,18 +21,27 @@ const parseAmount = (amountStr: string) => parseFloat(amountStr.replace(/[₦,]/
 const Payslips: React.FC = () => {
     const navigate = useNavigate();
     const [sortOrder, setSortOrder] = useState<'date-desc' | 'amount-asc' | 'amount-desc'>('date-desc');
+    const [payslips, setPayslips] = useState<Payslip[]>([]);
+
+    useEffect(() => {
+        const fetchPayslips = async () => {
+            const payslipsData = await getFirestoreData<Payslip>("payslips");
+            setPayslips(payslipsData);
+        };
+
+        fetchPayslips();
+    }, []);
 
     const sortedPayslips = useMemo(() => {
-        const sorted = [...payslipsData];
+        const sorted = [...payslips];
         if (sortOrder === 'amount-asc') {
             return sorted.sort((a, b) => parseAmount(a.amount) - parseAmount(b.amount));
         }
         if (sortOrder === 'amount-desc') {
             return sorted.sort((a, b) => parseAmount(b.amount) - parseAmount(a.amount));
         }
-        // 'date-desc' is the original order, so return the copy
-        return sorted;
-    }, [sortOrder]);
+        return sorted.sort((a, b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime());
+    }, [sortOrder, payslips]);
 
 
     return (

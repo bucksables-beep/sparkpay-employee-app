@@ -1,12 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Notification } from '../types';
-
-const initialNotifications: Notification[] = [
-    { id: '1', icon: 'payments', title: 'Your salary for June has been processed', time: '10:30 AM', isRead: false, category: 'Today' },
-    { id: '2', icon: 'campaign', title: 'New company policy update', time: '9:15 AM', isRead: false, category: 'Today' },
-    { id: '3', icon: 'description', title: 'Payslip for May is now available', time: '4:45 PM', isRead: true, category: 'Yesterday' },
-    { id: '4', icon: 'settings_suggest', title: 'System maintenance scheduled for tonight', time: '2:00 PM', isRead: true, category: 'Yesterday' },
-];
+import { getFirestoreData } from '../services/api';
 
 const NotificationItem: React.FC<{ notification: Notification; onClick: () => void }> = ({ notification, onClick }) => (
     <button onClick={onClick} className={`w-full text-left flex items-start gap-4 rounded-lg p-4 shadow-sm transition-opacity interactive-scale ${notification.isRead ? 'bg-surface-light/50 dark:bg-surface-dark/40 opacity-70' : 'bg-surface-light dark:bg-surface-dark'}`}>
@@ -26,7 +20,16 @@ const NotificationItem: React.FC<{ notification: Notification; onClick: () => vo
 );
 
 const Notifications: React.FC = () => {
-    const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            const notificationsData = await getFirestoreData<Notification>("notifications");
+            setNotifications(notificationsData);
+        };
+
+        fetchNotifications();
+    }, []);
 
     const markAllAsRead = () => {
         setNotifications(notifications.map(n => ({ ...n, isRead: true })));

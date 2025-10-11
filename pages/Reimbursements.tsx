@@ -1,13 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import type { Reimbursement } from '../types';
-
-const mockReimbursements: Reimbursement[] = [
-    { id: '1', type: 'Travel', amount: 15000, date: '2024-01-10', expenseDate: '2024-01-08', description: 'Client meeting transportation', status: 'Approved' },
-    { id: '2', type: 'Meals', amount: 8500, date: '2024-01-09', expenseDate: '2024-01-08', description: 'Lunch with client', status: 'Pending' },
-    { id: '3', type: 'Supplies', amount: 25000, date: '2024-01-05', expenseDate: '2024-01-04', description: 'New office keyboard and mouse', status: 'Approved' },
-    { id: '4', type: 'Other', amount: 5000, date: '2023-12-20', expenseDate: '2023-12-19', description: 'Courier service fee', status: 'Rejected' },
-];
+import { getFirestoreData } from '../services/api';
 
 const formatCurrency = (amount: number) => `₦${amount.toLocaleString('en-NG')}`;
 
@@ -44,9 +38,19 @@ const Reimbursements: React.FC = () => {
     const navigate = useNavigate();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [reimbursements, setReimbursements] = useState<Reimbursement[]>([]);
+
+    useEffect(() => {
+        const fetchReimbursements = async () => {
+            const reimbursementsData = await getFirestoreData<Reimbursement>("reimbursements");
+            setReimbursements(reimbursementsData);
+        };
+
+        fetchReimbursements();
+    }, []);
 
     const filteredReimbursements = useMemo(() => {
-        return mockReimbursements.filter(item => {
+        return reimbursements.filter(item => {
             if (!startDate && !endDate) return true;
 
             const itemDate = item.expenseDate;
@@ -55,7 +59,7 @@ const Reimbursements: React.FC = () => {
 
             return isAfterStartDate && isBeforeEndDate;
         });
-    }, [startDate, endDate]);
+    }, [startDate, endDate, reimbursements]);
 
     const handleClearFilter = () => {
         setStartDate('');

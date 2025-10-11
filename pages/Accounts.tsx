@@ -1,11 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Account } from '../types';
-
-const initialAccounts: Account[] = [
-    { id: '1', bankName: 'First Bank of Nigeria', accountNumber: '1234567890', isDefault: true },
-    { id: '2', bankName: 'United Bank for Africa', accountNumber: '0987654321', isDefault: false },
-];
+import { getFirestoreData } from '../services/api';
 
 const AccountItem: React.FC<{ account: Account; onToggle: (id: string) => void }> = ({ account, onToggle }) => (
     <div className={`bg-surface-light dark:bg-surface-dark p-3 rounded-lg flex items-center justify-between ${!account.isDefault ? 'opacity-60' : ''}`}>
@@ -34,9 +30,18 @@ const AccountItem: React.FC<{ account: Account; onToggle: (id: string) => void }
 
 const Accounts: React.FC = () => {
     const navigate = useNavigate();
-    const [accounts, setAccounts] = useState(initialAccounts);
+    const [accounts, setAccounts] = useState<Account[]>([]);
 
-    const handleToggleDefault = (id: string) => {
+    useEffect(() => {
+        const fetchAccounts = async () => {
+            const accountsData = await getFirestoreData<Account>("accounts");
+            setAccounts(accountsData);
+        };
+
+        fetchAccounts();
+    }, []);
+
+    const handleSetDefault = (id: string) => {
         setAccounts(accounts.map(acc => ({
             ...acc,
             isDefault: acc.id === id
@@ -83,7 +88,7 @@ const Accounts: React.FC = () => {
                 <section className="space-y-4">
                     <h2 className="text-lg font-bold">My Accounts</h2>
                     <div className="space-y-3">
-                       {accounts.map(acc => <AccountItem key={acc.id} account={acc} onToggle={handleToggleDefault} />)}
+                       {accounts.map(acc => <AccountItem key={acc.id} account={acc} onToggle={handleSetDefault} />)}
                     </div>
                 </section>
             </main>

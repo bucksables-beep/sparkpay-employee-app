@@ -34,7 +34,7 @@ import { db } from "../firebase"; // Assuming firebase.ts is in the root
  * @param collectionName The name of the collection to fetch data from.
  * @returns A promise that resolves with an array of documents, or an empty array if an error occurs.
  */
-export const getFirestoreData = async <T extends DocumentData>(
+export const getFirestoreData = async <T extends { id: string }>(
   collectionName: string
 ): Promise<T[]> => {
   try {

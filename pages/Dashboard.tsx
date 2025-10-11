@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Payment } from '../types';
 import { Link } from 'react-router-dom';
-import { db } from '../firebase'; // Import the db object from your firebase.ts file
-import { collection, getDocs } from 'firebase/firestore';
+import { getFirestoreData } from '../services/api';
 
 const monthlyEarningsData = [
     { month: 'Jul', earnings: 185000 },
@@ -114,11 +113,7 @@ const Dashboard: React.FC = () => {
 
     useEffect(() => {
         const fetchPayments = async () => {
-            const querySnapshot = await getDocs(collection(db, "employees"));
-            const paymentsData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as Payment[];
+            const paymentsData = await getFirestoreData<Payment>("employees");
             setPayments(paymentsData);
         };
 
