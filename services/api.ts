@@ -25,7 +25,7 @@ export const fetchData = async (endpoint: string) => {
 };
 
 // 2. Using the existing Firebase connection
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, DocumentData } from "firebase/firestore";
 import { db } from "../firebase"; // Assuming firebase.ts is in the root
 
 /**
@@ -34,12 +34,14 @@ import { db } from "../firebase"; // Assuming firebase.ts is in the root
  * @param collectionName The name of the collection to fetch data from.
  * @returns A promise that resolves with an array of documents, or an empty array if an error occurs.
  */
-export const getFirestoreData = async (collectionName: string) => {
+export const getFirestoreData = async <T extends DocumentData>(
+  collectionName: string
+): Promise<T[]> => {
   try {
     const querySnapshot = await getDocs(collection(db, collectionName));
-    const data: any[] = [];
+    const data: T[] = [];
     querySnapshot.forEach((doc) => {
-      data.push({ id: doc.id, ...doc.data() });
+      data.push({ id: doc.id, ...doc.data() } as T);
     });
     return data;
   } catch (error) {
