@@ -1,12 +1,9 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import type { Payment } from '../types';
 import { Link } from 'react-router-dom';
-
-const paymentsData: Payment[] = [
-    { id: '1', amount: '₦30,000.00', date: '2023-11-15', status: 'Paid' },
-    { id: '2', amount: '₦30,000.00', date: '2023-10-15', status: 'Paid' },
-    { id: '3', amount: '₦30,000.00', date: '2023-09-15', status: 'Paid' },
-];
+import { db } from '../firebase'; // Import the db object from your firebase.ts file
+import { collection, getDocs } from 'firebase/firestore';
 
 const monthlyEarningsData = [
     { month: 'Jul', earnings: 185000 },
@@ -113,6 +110,21 @@ const QuickAction: React.FC<{ to: string; icon: string; label: string; color: Ac
 };
 
 const Dashboard: React.FC = () => {
+    const [payments, setPayments] = useState<Payment[]>([]);
+
+    useEffect(() => {
+        const fetchPayments = async () => {
+            const querySnapshot = await getDocs(collection(db, "employees"));
+            const paymentsData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Payment[];
+            setPayments(paymentsData);
+        };
+
+        fetchPayments();
+    }, []);
+
     const currentMonthEarning = monthlyEarningsData[monthlyEarningsData.length - 1].earnings;
     const previousMonthEarning = monthlyEarningsData[monthlyEarningsData.length - 2].earnings;
     const percentageChange = ((currentMonthEarning - previousMonthEarning) / previousMonthEarning) * 100;
@@ -174,7 +186,7 @@ const Dashboard: React.FC = () => {
                     <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">Recent Payments</h2>
                     <div className="flow-root">
                         <ul className="-mb-4" role="list">
-                            {paymentsData.map(payment => <PaymentItem key={payment.id} payment={payment} />)}
+                            {payments.map(payment => <PaymentItem key={payment.id} payment={payment} />)}
                         </ul>
                     </div>
                 </div>
