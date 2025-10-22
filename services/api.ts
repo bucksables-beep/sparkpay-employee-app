@@ -12,7 +12,7 @@
 export const fetchData = async (endpoint: string) => {
   try {
     // Replace with your actual API base URL
-    const response = await fetch(`https://api.example.com/${endpoint}`);
+    const response = await fetch(`https://api.sparkpayhq.com/${endpoint}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

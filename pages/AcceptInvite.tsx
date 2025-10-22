@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -56,34 +57,61 @@ const AcceptInvite: React.FC = () => {
 
     const [loginEmail, setLoginEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [orgName, setOrgName] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const inviteCode = searchParams.get('inviteCode');
-    const invitedEmail = searchParams.get('email');
-    const orgName = "Sparkpay Inc.";
+    const onboardingToken = searchParams.get('token');
 
     useEffect(() => {
-        if (invitedEmail) {
-            setLoginEmail(invitedEmail);
+        if (onboardingToken) {
+            fetch(`https://api.sparkpayhq.com/employees/onboard/${onboardingToken}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Could not fetch invitation details.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    setLoginEmail(data.employee.email);
+                    setOrgName(data.organisation.name);
+                    setIsLoading(false);
+                })
+                .catch(err => {
+                    setError(err.message);
+                    setIsLoading(false);
+                });
+        } else {
+            setError('No onboarding token provided.');
+            setIsLoading(false);
         }
-    }, [invitedEmail]);
+    }, [onboardingToken]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const apiRequestBody = {
-            inviteCode,
-            invitedEmail,
-            loginEmail,
-            password,
-        };
-
-        console.log('API Request Body:', apiRequestBody);
-
+        // ... (handle form submission)
         navigate('/login', { state: { message: 'Account created successfully! Please sign in to continue.' } });
     };
 
     const handleSignInRedirect = () => {
         navigate('/login', { state: { message: `Please sign in to join ${orgName}.` } });
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen flex-col justify-center items-center bg-background-light p-6 dark:bg-background-dark">
+                <p className="text-text-light dark:text-text-dark">Loading...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex min-h-screen flex-col justify-center items-center bg-background-light p-6 dark:bg-background-dark">
+                <p className="text-red-500">{error}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-screen flex-col justify-center bg-background-light p-6 dark:bg-background-dark">
