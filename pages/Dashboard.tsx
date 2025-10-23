@@ -3,15 +3,9 @@ import type { Payment } from "../types";
 import { Link } from "react-router-dom";
 import { getFirestoreData } from "../services/api";
 import useStore from "../store";
+import EmptyState from "../components/EmptyState";
 
-const monthlyEarningsData = [
-  { month: "Jul", earnings: 185000 },
-  { month: "Aug", earnings: 210000 },
-  { month: "Sep", earnings: 195000 },
-  { month: "Oct", earnings: 220000 },
-  { month: "Nov", earnings: 205000 },
-  { month: "Dec", earnings: 230000 },
-];
+const monthlyEarningsData: { month: string; earnings: number }[] = [];
 
 const formatCurrency = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
@@ -145,7 +139,7 @@ const Dashboard: React.FC = () => {
       setPayments(paymentsData);
     };
 
-    fetchPayments();
+    // fetchPayments();
 
     // Set a mock user for demonstration purposes
     setUser({
@@ -156,12 +150,9 @@ const Dashboard: React.FC = () => {
     });
   }, [setUser]);
 
-  const currentMonthEarning =
-    monthlyEarningsData[monthlyEarningsData.length - 1].earnings;
-  const previousMonthEarning =
-    monthlyEarningsData[monthlyEarningsData.length - 2].earnings;
-  const percentageChange =
-    ((currentMonthEarning - previousMonthEarning) / previousMonthEarning) * 100;
+  const currentMonthEarning = 0;
+  const previousMonthEarning = 0;
+  const percentageChange = 0;
 
   return (
     <>
@@ -185,29 +176,35 @@ const Dashboard: React.FC = () => {
           <p className="text-sm text-subtext-light dark:text-subtext-dark">
             Here's a summary of your earnings.
           </p>
-          <div className="flex items-baseline gap-2 mt-2">
-            <p className="text-4xl font-bold text-text-light dark:text-text-dark">
-              {formatCurrency(currentMonthEarning)}
-            </p>
-            <div
-              className={`flex items-center gap-1 ${
-                percentageChange >= 0
-                  ? "text-success-light dark:text-success-dark"
-                  : "text-red-500"
-              }`}
-            >
-              <span
-                className="material-symbols-outlined text-base"
-                aria-hidden="true"
-              >
-                {percentageChange >= 0 ? "arrow_upward" : "arrow_downward"}
-              </span>
-              <p className="text-sm font-medium">
-                {Math.abs(percentageChange).toFixed(1)}%
-              </p>
-            </div>
-          </div>
-          <EarningsChart data={monthlyEarningsData} />
+          {monthlyEarningsData.length > 0 ? (
+            <>
+              <div className="flex items-baseline gap-2 mt-2">
+                <p className="text-4xl font-bold text-text-light dark:text-text-dark">
+                  {formatCurrency(currentMonthEarning)}
+                </p>
+                <div
+                  className={`flex items-center gap-1 ${
+                    percentageChange >= 0
+                      ? "text-success-light dark:text-success-dark"
+                      : "text-red-500"
+                  }`}
+                >
+                  <span
+                    className="material-symbols-outlined text-base"
+                    aria-hidden="true"
+                  >
+                    {percentageChange >= 0 ? "arrow_upward" : "arrow_downward"}
+                  </span>
+                  <p className="text-sm font-medium">
+                    {Math.abs(percentageChange).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+              <EarningsChart data={monthlyEarningsData} />
+            </>
+          ) : (
+            <EmptyState message="No earnings data available yet." />
+          )}
         </div>
 
         <section>
@@ -272,13 +269,17 @@ const Dashboard: React.FC = () => {
           <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
             Recent Payments
           </h2>
-          <div className="flow-root">
-            <ul className="-mb-4" role="list">
-              {payments.map((payment) => (
-                <PaymentItem key={payment.id} payment={payment} />
-              ))}
-            </ul>
-          </div>
+          {payments.length > 0 ? (
+            <div className="flow-root">
+              <ul className="-mb-4" role="list">
+                {payments.map((payment) => (
+                  <PaymentItem key={payment.id} payment={payment} />
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <EmptyState message="You have no recent payments." />
+          )}
         </div>
       </main>
     </>
