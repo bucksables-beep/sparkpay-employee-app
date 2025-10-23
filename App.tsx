@@ -1,5 +1,5 @@
 import React from "react";
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import DefaultLayout from "./components/DefaultLayout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -17,9 +17,9 @@ import AcceptInvite from "./pages/AcceptInvite";
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/accept-invite" replace />} />
+          <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
           <Route path="/payslip/:payslipId" element={<PayslipDetail />} />
@@ -34,9 +34,9 @@ const App: React.FC = () => {
             <Route path="settings" element={<Settings />} />
             <Route path="accounts" element={<Accounts />} />
           </Route>
-          <Route path="*" element={<Navigate to="/accept-invite" replace />} />
+          <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </ThemeProvider>
   );
 };
