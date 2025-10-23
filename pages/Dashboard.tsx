@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { Payment } from "../types";
 import { Link } from "react-router-dom";
 import { getFirestoreData } from "../services/api";
+import useStore from "../store";
 
 const monthlyEarningsData = [
   { month: "Jul", earnings: 185000 },
@@ -136,6 +137,7 @@ const QuickAction: React.FC<{
 
 const Dashboard: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
+  const { user, setUser } = useStore();
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -144,7 +146,15 @@ const Dashboard: React.FC = () => {
     };
 
     fetchPayments();
-  }, []);
+
+    // Set a mock user for demonstration purposes
+    setUser({
+      uid: "12345",
+      email: "test@example.com",
+      displayName: "Test User",
+      photoURL: "",
+    });
+  }, [setUser]);
 
   const currentMonthEarning =
     monthlyEarningsData[monthlyEarningsData.length - 1].earnings;
@@ -170,10 +180,10 @@ const Dashboard: React.FC = () => {
       <main className="p-4 space-y-6">
         <div className="rounded-lg bg-surface-light dark:bg-surface-dark p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-text-light dark:text-text-dark mb-1">
-            Monthly Earnings
+            Welcome, {user?.displayName || "User"}!
           </h2>
           <p className="text-sm text-subtext-light dark:text-subtext-dark">
-            Total this month
+            Here's a summary of your earnings.
           </p>
           <div className="flex items-baseline gap-2 mt-2">
             <p className="text-4xl font-bold text-text-light dark:text-text-dark">
