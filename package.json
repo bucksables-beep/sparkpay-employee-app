@@ -9,10 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "classnames": "^2.5.1",
     "firebase": "^12.4.0",
+    "formik": "^2.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.3"
+    "react-router-dom": "^7.9.3",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

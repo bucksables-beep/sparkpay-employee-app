@@ -2,27 +2,134 @@
  * This file provides functions to connect to backend APIs.
  */
 
-// 1. Using the fetch API for a generic REST API
-/**
- * Fetches data from a generic REST API endpoint.
- *
- * @param endpoint The API endpoint to fetch data from.
- * @returns A promise that resolves with the JSON data, or null if an error occurs.
- */
-export const fetchData = async (endpoint: string) => {
-  try {
-    // Replace with your actual API base URL
-    const response = await fetch(`https://api.sparkpayhq.com/${endpoint}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch data:", error);
-    return null;
-  }
+type ApiResponse<T> = {
+  data: T;
+  meta?: {
+    total: number;
+    perPage: number;
+    pageCount: number;
+    page: number;
+    pagingCounter: number;
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
+    previousPage: number | null;
+    nextPage: number | null;
+  };
 };
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public errors: Record<string, unknown> | null = null
+  ) {
+    super(message);
+  }
+}
+
+type HTTPConfig = {
+  params?: Record<string, string>;
+  headers?: Record<string, string>;
+};
+
+export class $api {
+  private static readonly baseUrl = process.env.API_URL;
+
+  private static getUrl(endpoint: string, config?: HTTPConfig): string {
+    let url = `${this.baseUrl}/${endpoint}`;
+    if (config?.params) {
+      url += `?${new URLSearchParams(config.params).toString()}`;
+    }
+    return url;
+  }
+
+  private static handleResponse<T>(
+    response: Response
+  ): Promise<ApiResponse<T>> {
+    if (!response.ok) {
+      return response
+        .json()
+        .then((data) => {
+          throw new ApiError(data.message, response.status, data.errors);
+        })
+        .catch((err) => {
+          if (err instanceof ApiError) {
+            throw err;
+          }
+
+          throw new ApiError("Failed to fetch data", response.status);
+        });
+    }
+
+    return response.json().then(({ data, meta }) => ({ data, meta }));
+  }
+
+  private static handleRequest<T>(
+    url: string,
+    method: string,
+    data?: unknown,
+    config?: HTTPConfig
+  ): Promise<ApiResponse<T>> {
+    return fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...config?.headers,
+      },
+      body: JSON.stringify(data),
+    }).then(this.handleResponse<T>);
+  }
+
+  static async get<T>(
+    endpoint: string,
+    config?: HTTPConfig
+  ): Promise<ApiResponse<T>> {
+    return this.handleRequest<T>(
+      this.getUrl(endpoint, config),
+      "GET",
+      undefined,
+      config
+    );
+  }
+
+  static async post<T>(
+    endpoint: string,
+    data?: unknown,
+    config?: HTTPConfig
+  ): Promise<ApiResponse<T>> {
+    return this.handleRequest<T>(
+      this.getUrl(endpoint, config),
+      "POST",
+      data,
+      config
+    );
+  }
+
+  static async put<T>(
+    endpoint: string,
+    data?: unknown,
+    config?: HTTPConfig
+  ): Promise<ApiResponse<T>> {
+    return this.handleRequest<T>(
+      this.getUrl(endpoint, config),
+      "PUT",
+      data,
+      config
+    );
+  }
+
+  static async delete<T>(
+    endpoint: string,
+    config?: HTTPConfig
+  ): Promise<ApiResponse<T>> {
+    return this.handleRequest<T>(
+      this.getUrl(endpoint, config),
+      "DELETE",
+      undefined,
+      config
+    );
+  }
+}
 
 // 2. Using the existing Firebase connection
 import { collection, getDocs, DocumentData } from "firebase/firestore";
