@@ -19,7 +19,7 @@ const iconMap = {
 };
 
 const ReimbursementItem: React.FC<{ item: Reimbursement }> = ({ item }) => (
-    <div className="flex items-center gap-4 py-4">
+    <Link to={`/reimbursements/${item.id}`} className="flex items-center gap-4 py-4">
         <div className="flex items-center justify-center size-12 rounded-full bg-primary/10 dark:bg-accent-blue/20 text-primary dark:text-accent-blue">
             <span className="material-symbols-outlined">{iconMap[item.type]}</span>
         </div>
@@ -31,7 +31,7 @@ const ReimbursementItem: React.FC<{ item: Reimbursement }> = ({ item }) => (
              <p className="font-bold text-text-light dark:text-text-dark">{formatCurrency(item.amount)}</p>
              <p className={`text-xs font-medium px-2 py-1 rounded-full inline-block mt-1 ${statusStyles[item.status]}`}>{item.status}</p>
         </div>
-    </div>
+    </Link>
 );
 
 const Reimbursements: React.FC = () => {

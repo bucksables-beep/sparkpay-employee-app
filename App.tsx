@@ -11,6 +11,7 @@ import PayslipDetail from "./pages/PayslipDetail";
 import SalaryAdvance from "./pages/SalaryAdvance";
 import Reimbursements from "./pages/Reimbursements";
 import NewReimbursement from "./pages/NewReimbursement";
+import ReimbursementDetail from "./pages/ReimbursementDetail";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import AcceptInvite from "./pages/AcceptInvite";
 
@@ -25,6 +26,7 @@ const App: React.FC = () => {
           <Route path="/payslip/:payslipId" element={<PayslipDetail />} />
           <Route path="/salary-advance" element={<SalaryAdvance />} />
           <Route path="/reimbursements/new" element={<NewReimbursement />} />
+          <Route path="/reimbursements/:id" element={<ReimbursementDetail />} />
           <Route path="/app" element={<DefaultLayout />}>
             <Route index element={<Navigate to="/app/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />

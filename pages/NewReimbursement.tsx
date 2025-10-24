@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Reimbursement } from '../types';
+import { addFirestoreData } from '../services/api';
+import useStore from '../store';
 
 type ReimbursementFormData = Omit<Reimbursement, 'id' | 'status' | 'date'>;
 
@@ -25,6 +27,7 @@ const Header: React.FC<{ title: string; onBack?: () => void }> = ({ title, onBac
 
 const NewReimbursement: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useStore();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<Partial<ReimbursementFormData>>({
         type: 'Travel',
@@ -32,7 +35,9 @@ const NewReimbursement: React.FC = () => {
         expenseDate: new Date().toISOString().split('T')[0],
         description: '',
     });
-     const [receiptFile, setReceiptFile] = useState<File | null>(null);
+    const [receiptFile, setReceiptFile] = useState<File | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submissionError, setSubmissionError] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -42,6 +47,35 @@ const NewReimbursement: React.FC = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setReceiptFile(e.target.files[0]);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!isStep1Valid || !isStep2Valid || !user) return;
+
+        setIsSubmitting(true);
+        setSubmissionError(null);
+
+        try {
+            const newReimbursement: Omit<Reimbursement, 'id'> = {
+                ...(formData as ReimbursementFormData),
+                amount: Number(formData.amount),
+                status: 'Pending',
+                date: new Date().toISOString(),
+                userId: user.uid,
+            };
+
+            const result = await addFirestoreData('reimbursements', newReimbursement);
+            if (result) {
+                setStep(4);
+            } else {
+                throw new Error("Submission failed. Please try again.");
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+            setSubmissionError(errorMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -55,7 +89,7 @@ const NewReimbursement: React.FC = () => {
                     <>
                         <Header title="New Reimbursement" onBack={() => navigate('/reimbursements')} />
                         <main className="flex-grow p-4 space-y-4">
-                             <div>
+                            <div>
                                 <label htmlFor="type" className="block text-sm font-medium text-subtext-light dark:text-subtext-dark mb-2">Expense Type</label>
                                 <select id="type" name="type" value={formData.type} onChange={handleChange} className="form-select w-full rounded-lg bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark h-14 px-4">
                                     <option>Travel</option>
@@ -64,11 +98,11 @@ const NewReimbursement: React.FC = () => {
                                     <option>Other</option>
                                 </select>
                             </div>
-                             <div>
+                            <div>
                                 <label htmlFor="amount" className="block text-sm font-medium text-subtext-light dark:text-subtext-dark mb-2">Amount</label>
                                 <input type="number" id="amount" name="amount" value={formData.amount || ''} onChange={handleChange} className="form-input w-full rounded-lg bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark h-14 px-4" placeholder="0.00" />
                             </div>
-                             <div>
+                            <div>
                                 <label htmlFor="expenseDate" className="block text-sm font-medium text-subtext-light dark:text-subtext-dark mb-2">Date of Expense</label>
                                 <input type="date" id="expenseDate" name="expenseDate" value={formData.expenseDate} onChange={handleChange} className="form-input w-full rounded-lg bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark h-14 px-4" />
                             </div>
@@ -78,11 +112,11 @@ const NewReimbursement: React.FC = () => {
                             </div>
                         </main>
                         <footer className="p-4">
-                             <button onClick={() => setStep(2)} disabled={!isStep1Valid} className="w-full h-14 bg-primary text-white font-bold rounded-lg disabled:bg-primary/40 interactive-scale">Continue</button>
+                            <button onClick={() => setStep(2)} disabled={!isStep1Valid} className="w-full h-14 bg-primary text-white font-bold rounded-lg disabled:bg-primary/40 interactive-scale">Continue</button>
                         </footer>
                     </>
                 );
-             case 2:
+            case 2:
                 return (
                     <>
                         <Header title="Upload Receipt" onBack={() => setStep(1)} />
@@ -98,12 +132,12 @@ const NewReimbursement: React.FC = () => {
                             {receiptFile && <p className="mt-4 text-sm font-medium text-text-light dark:text-text-dark">File: {receiptFile.name}</p>}
                         </main>
                         <footer className="p-4">
-                             <button onClick={() => setStep(3)} disabled={!isStep2Valid} className="w-full h-14 bg-primary text-white font-bold rounded-lg disabled:bg-primary/40 interactive-scale">Continue</button>
+                            <button onClick={() => setStep(3)} disabled={!isStep2Valid} className="w-full h-14 bg-primary text-white font-bold rounded-lg disabled:bg-primary/40 interactive-scale">Continue</button>
                         </footer>
                     </>
                 );
             case 3:
-                 return (
+                return (
                     <>
                         <Header title="Review Request" onBack={() => setStep(2)} />
                         <main className="flex-grow p-4">
@@ -117,13 +151,18 @@ const NewReimbursement: React.FC = () => {
                             </div>
                         </main>
                         <footer className="p-4">
-                            <button onClick={() => setStep(4)} className="w-full h-14 bg-primary text-white font-bold rounded-lg interactive-scale">Submit Request</button>
+                            <button onClick={handleSubmit} disabled={isSubmitting} className="w-full h-14 bg-primary text-white font-bold rounded-lg interactive-scale disabled:opacity-50">
+                                {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                            </button>
+                            {submissionError && (
+                                <p className="text-red-500 text-sm text-center mt-2">{submissionError}</p>
+                            )}
                         </footer>
                     </>
                 );
             case 4:
                 return (
-                     <>
+                    <>
                         <Header title="Success" />
                         <main className="flex-grow p-6 flex flex-col items-center justify-center text-center">
                             <div className="w-24 h-24 rounded-full bg-success-light/10 dark:bg-success-dark/20 flex items-center justify-center mb-6">
