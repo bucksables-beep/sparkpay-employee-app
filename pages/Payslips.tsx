@@ -76,9 +76,17 @@ const Payslips: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedPayslips.map(payslip => <PayslipItem key={payslip.id} payslip={payslip} />)}
-            </div>
+            {sortedPayslips.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {sortedPayslips.map(payslip => <PayslipItem key={payslip.id} payslip={payslip} />)}
+                </div>
+            ) : (
+                <div className="text-center py-20 bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm">
+                    <span className="material-symbols-outlined text-6xl text-subtext-light dark:text-subtext-dark" aria-hidden="true">receipt_long</span>
+                    <p className="mt-4 text-xl font-semibold">No Payslips Available</p>
+                    <p className="text-subtext-light dark:text-subtext-dark mt-2">Your payslips will appear here as soon as they are ready.</p>
+                </div>
+            )}
         </div>
     );
 };
