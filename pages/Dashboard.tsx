@@ -10,7 +10,7 @@ const monthlyEarningsData: { month: string; earnings: number }[] = [];
 const formatCurrency = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
 
 const PaymentItem: React.FC<{ payment: Payment }> = ({ payment }) => (
-  <li className="pb-4">
+  <li className="py-4">
     <div className="flex items-center space-x-4">
       <div className="flex-shrink-0">
         <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-accent-blue/20 flex items-center justify-center">
@@ -18,8 +18,7 @@ const PaymentItem: React.FC<{ payment: Payment }> = ({ payment }) => (
             className="material-symbols-outlined text-primary dark:text-accent-blue"
             aria-hidden="true"
           >
-            {" "}
-            check_circle{" "}
+            check_circle
           </span>
         </div>
       </div>
@@ -134,155 +133,105 @@ const Dashboard: React.FC = () => {
   const { user, setUser } = useStore();
 
   useEffect(() => {
+    // Mock user for demonstration
+    if (!user) {
+      setUser({
+        uid: "12345",
+        email: "test@example.com",
+        displayName: "Test User",
+        photoURL: "",
+      });
+    }
+
     const fetchPayments = async () => {
       const paymentsData = await getFirestoreData<Payment>("employees");
       setPayments(paymentsData);
     };
-
-    // fetchPayments();
-
-    // Set a mock user for demonstration purposes
-    setUser({
-      uid: "12345",
-      email: "test@example.com",
-      displayName: "Test User",
-      photoURL: "",
-    });
-  }, [setUser]);
+    // fetchPayments(); // Currently disabled
+  }, [user, setUser]);
 
   const currentMonthEarning = 0;
-  const previousMonthEarning = 0;
-  const percentageChange = 0;
 
   return (
-    <>
-      <header className="flex items-center justify-between p-4 bg-background-light dark:bg-background-dark">
-        <button
-          className="text-text-light dark:text-text-dark"
-          aria-label="Open menu"
-        >
-          <span className="material-symbols-outlined text-3xl"> menu </span>
-        </button>
-        <h1 className="text-xl font-bold text-text-light dark:text-text-dark">
-          Dashboard
+    <div className="p-4 sm:p-6 lg:p-8">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-text-light dark:text-text-dark">
+          Welcome, {user?.displayName || "User"}!
         </h1>
-        <div className="w-8"></div>
+        <p className="text-subtext-light dark:text-subtext-dark mt-1">
+          Here is a summary of your activities.
+        </p>
       </header>
-      <main className="p-4 space-y-6">
-        <div className="rounded-lg bg-surface-light dark:bg-surface-dark p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-text-light dark:text-text-dark mb-1">
-            Welcome, {user?.displayName || "User"}!
-          </h2>
-          <p className="text-sm text-subtext-light dark:text-subtext-dark">
-            Here's a summary of your earnings.
-          </p>
-          {monthlyEarningsData.length > 0 ? (
-            <>
-              <div className="flex items-baseline gap-2 mt-2">
-                <p className="text-4xl font-bold text-text-light dark:text-text-dark">
-                  {formatCurrency(currentMonthEarning)}
-                </p>
-                <div
-                  className={`flex items-center gap-1 ${
-                    percentageChange >= 0
-                      ? "text-success-light dark:text-success-dark"
-                      : "text-red-500"
-                  }`}
-                >
-                  <span
-                    className="material-symbols-outlined text-base"
-                    aria-hidden="true"
-                  >
-                    {percentageChange >= 0 ? "arrow_upward" : "arrow_downward"}
-                  </span>
-                  <p className="text-sm font-medium">
-                    {Math.abs(percentageChange).toFixed(1)}%
-                  </p>
+
+      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column */}
+        <div className="lg:col-span-2 space-y-6">
+          <section>
+            <h2 className="text-xl font-semibold text-text-light dark:text-text-dark mb-4">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <QuickAction to="/app/salary-advance" icon="request_quote" label="Salary Advance" color="orange" />
+              <QuickAction to="/app/reimbursements" icon="receipt" label="Reimbursements" color="green" />
+              <QuickAction to="/app/payslips" icon="receipt_long" label="View Payslips" color="blue" />
+              <QuickAction to="/app/accounts" icon="account_balance" label="Bank Accounts" color="purple" />
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-text-light dark:text-text-dark mb-4">
+              Recent Payments
+            </h2>
+            {payments.length > 0 ? (
+              <div className="bg-surface-light dark:bg-surface-dark rounded-lg shadow-sm">
+                <ul className="divide-y divide-border-light dark:divide-border-dark">
+                  {payments.map((payment) => (
+                    <li key={payment.id} className="px-6">
+                      <PaymentItem payment={payment} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <EmptyState message="You have no recent payments." />
+            )}
+          </section>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+           <div className="rounded-lg bg-primary text-white p-6 shadow-sm flex flex-col h-full">
+              <div className="flex-grow">
+                <p className="text-sm font-medium opacity-80">Earned this month</p>
+                <p className="text-3xl font-bold mt-1">{formatCurrency(currentMonthEarning)} / ₦250,000</p>
+                <div className="w-full bg-white/20 rounded-full h-2.5 mt-4">
+                  <div className="bg-white rounded-full h-2.5" style={{ width: `${(currentMonthEarning / 250000) * 100}%` }}></div>
                 </div>
               </div>
-              <EarningsChart data={monthlyEarningsData} />
-            </>
-          ) : (
-            <EmptyState message="No earnings data available yet." />
-          )}
-        </div>
+              <div className="flex justify-between items-end mt-6">
+                 <div>
+                    <p className="text-lg font-bold">15 days</p>
+                    <p className="text-sm opacity-80">until payday</p>
+                  </div>
+                <Link to="/app/payslips" className="bg-white/20 hover:bg-white/30 text-white text-sm font-semibold py-2 px-4 rounded-full interactive-scale">
+                  View Details
+                </Link>
+              </div>
+            </div>
 
-        <section>
-          <h2 className="text-lg font-semibold text-text-light dark:text-text-dark mb-4">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <QuickAction
-              to="/salary-advance"
-              icon="request_quote"
-              label="Salary Advance"
-              color="orange"
-            />
-            <QuickAction
-              to="/reimbursements"
-              icon="receipt"
-              label="Reimbursements"
-              color="green"
-            />
-            <QuickAction
-              to="/app/payslips"
-              icon="receipt_long"
-              label="View Payslips"
-              color="blue"
-            />
-            <QuickAction
-              to="/app/accounts"
-              icon="account_balance"
-              label="Bank Accounts"
-              color="purple"
-            />
-          </div>
-        </section>
-
-        <div className="rounded-lg bg-primary text-white p-6 shadow-sm flex flex-col">
-          <div className="flex-grow">
-            <p className="text-sm font-medium opacity-80">Earned this month</p>
-            <p className="text-2xl font-bold mt-1">
-              {formatCurrency(currentMonthEarning)} / ₦250,000
-            </p>
-            <div className="w-full bg-white/20 rounded-full h-2 mt-4">
-              <div
-                className="bg-white rounded-full h-2"
-                style={{ width: `${(currentMonthEarning / 250000) * 100}%` }}
-              ></div>
+            <div className="rounded-lg bg-surface-light dark:bg-surface-dark p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-text-light dark:text-text-dark mb-4">
+                Earnings Chart
+              </h2>
+              {monthlyEarningsData.length > 0 ? (
+                <EarningsChart data={monthlyEarningsData} />
+              ) : (
+                <EmptyState message="No earnings data available yet." />
+              )}
             </div>
-          </div>
-          <div className="flex justify-between items-end mt-4">
-            <div>
-              <p className="text-sm font-medium">15 days</p>
-              <p className="text-xs opacity-80">until payday</p>
-            </div>
-            <Link
-              to="/app/payslips"
-              className="bg-white/20 hover:bg-white/30 text-white text-sm font-semibold py-2 px-4 rounded-full interactive-scale"
-            >
-              View Details
-            </Link>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
-            Recent Payments
-          </h2>
-          {payments.length > 0 ? (
-            <div className="flow-root">
-              <ul className="-mb-4" role="list">
-                {payments.map((payment) => (
-                  <PaymentItem key={payment.id} payment={payment} />
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <EmptyState message="You have no recent payments." />
-          )}
         </div>
       </main>
-    </>
+    </div>
   );
 };
 

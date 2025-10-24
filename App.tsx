@@ -23,19 +23,21 @@ const App: React.FC = () => {
           <Route path="/" element={<Navigate to="/app/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
-          <Route path="/payslip/:payslipId" element={<PayslipDetail />} />
-          <Route path="/salary-advance" element={<SalaryAdvance />} />
-          <Route path="/reimbursements/new" element={<NewReimbursement />} />
-          <Route path="/reimbursements/:id" element={<ReimbursementDetail />} />
+          
           <Route path="/app" element={<DefaultLayout />}>
             <Route index element={<Navigate to="/app/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="payslips" element={<Payslips />} />
+            <Route path="payslip/:payslipId" element={<PayslipDetail />} />
             <Route path="reimbursements" element={<Reimbursements />} />
+            <Route path="reimbursements/new" element={<NewReimbursement />} />
+            <Route path="reimbursements/:id" element={<ReimbursementDetail />} />
+            <Route path="salary-advance" element={<SalaryAdvance />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="settings" element={<Settings />} />
             <Route path="accounts" element={<Accounts />} />
           </Route>
+
           <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
