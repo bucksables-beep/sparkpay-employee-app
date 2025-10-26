@@ -43,10 +43,16 @@ export class $api {
     return url;
   }
 
+  static setUser: ((user: User | null) => unknown) | null = null;
+
   private static handleResponse<T>(
     response: Response
   ): Promise<ApiResponse<T>> {
     if (!response.ok) {
+      if (response.status === 401) {
+        $api.setUser?.(null);
+      }
+
       return response
         .json()
         .then((data) => {
@@ -74,6 +80,7 @@ export class $api {
       method,
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         ...config?.headers,
       },
       body: JSON.stringify(data),
@@ -132,8 +139,16 @@ export class $api {
 }
 
 // 2. Using the existing Firebase connection
-import { collection, getDocs, addDoc, doc, getDoc, DocumentData } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  getDoc,
+  DocumentData,
+} from "firebase/firestore";
 import { db } from "../firebase"; // Assuming firebase.ts is in the root
+import { User } from "@/store";
 
 /**
  * Fetches data from a Firestore collection.

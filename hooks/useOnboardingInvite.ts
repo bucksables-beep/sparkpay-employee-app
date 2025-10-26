@@ -3,6 +3,7 @@ import { FormikHelpers, useFormik } from "formik";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import * as yup from "yup";
+import useStore, { User } from "@/store";
 
 interface OnboardingData {
   email: string;
@@ -16,12 +17,7 @@ interface OnboardingData {
 interface OnboardingResponse {
   accessToken: string;
   refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    firstname: string;
-    lastname: string;
-  };
+  user: User;
 }
 
 const onboardingSchema = yup.object().shape({
@@ -44,7 +40,7 @@ const onboardingSchema = yup.object().shape({
 export const useAcceptInvite = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
+  const setUser = useStore((state) => state.setUser);
   const onboardingToken = searchParams.get("token");
 
   const [orgName, setOrgName] = useState("");
@@ -72,6 +68,8 @@ export const useAcceptInvite = () => {
       .then(({ data }) => {
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("refreshToken", data.refreshToken);
+
+        setUser(data.user);
 
         return $api.post(
           "employees/join",

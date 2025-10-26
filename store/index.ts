@@ -1,10 +1,11 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-interface User {
-  uid: string;
+export interface User {
+  id: string;
   email: string;
-  displayName: string;
-  photoURL: string;
+  firstname: string;
+  lastname: string;
+  avatar?: string;
 }
 
 interface StoreState {

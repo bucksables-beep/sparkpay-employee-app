@@ -1,4 +1,5 @@
 import { $api } from "@/services/api";
+import useStore, { User } from "@/store";
 import { FormikHelpers, useFormik } from "formik";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import * as yup from "yup";
@@ -11,13 +12,7 @@ interface LoginFormValues {
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    firstname: string;
-    lastname: string;
-    avatar?: string;
-  };
+  user: User;
 }
 
 const loginSchema = yup.object().shape({
@@ -31,6 +26,7 @@ const loginSchema = yup.object().shape({
 export const useLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const setUser = useStore((state) => state.setUser);
   const message = location.state?.message;
   const [searchParams] = useSearchParams();
 
@@ -54,6 +50,8 @@ export const useLogin = () => {
 
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
+
+      setUser(response.data.user);
 
       if (onboardingToken) {
         await $api.post(
