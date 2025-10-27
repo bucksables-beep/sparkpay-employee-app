@@ -1,4 +1,3 @@
-
 export interface Account {
   id: string;
   bankName: string;
@@ -7,10 +6,10 @@ export interface Account {
 }
 
 export interface Payment {
-  id:string;
-  amount: string;
-  date: string;
-  status: 'Paid';
+  id: string;
+  netSalary: string;
+  createdAt: string;
+  payoutStatus: string;
 }
 
 export interface Notification {
@@ -19,17 +18,17 @@ export interface Notification {
   title: string;
   time: string;
   isRead: boolean;
-  category: 'Today' | 'Yesterday';
+  category: "Today" | "Yesterday";
 }
 
 export interface Payslip {
-    id: string;
-    monthYear: string;
-    amount: string;
+  id: string;
+  monthYear: string;
+  amount: string;
 }
 
 export interface PayslipDetail {
-  id:string;
+  id: string;
   monthYear: string;
   employeeName: string;
   employeeId: string;
@@ -44,11 +43,11 @@ export interface PayslipDetail {
 
 export interface Reimbursement {
   id: string;
-  type: 'Travel' | 'Meals' | 'Supplies' | 'Other';
+  type: "Travel" | "Meals" | "Supplies" | "Other";
   amount: number;
   date: string; // Date of request
   expenseDate: string;
   description: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
+  status: "Pending" | "Approved" | "Rejected";
   receiptUrl?: string;
 }

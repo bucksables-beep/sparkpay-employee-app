@@ -6,6 +6,9 @@ export interface User {
   firstname: string;
   lastname: string;
   avatar?: string;
+  country: {
+    currency: string;
+  };
 }
 
 interface StoreState {
