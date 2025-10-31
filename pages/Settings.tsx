@@ -92,7 +92,9 @@ const Settings: React.FC = () => {
                                 <div className="w-11 h-6 bg-border-light peer-focus:outline-none rounded-full peer dark:bg-border-dark peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                             </label>
                         </div>
-                         <button onClick={() => navigate('/app/accounts')} className="w-full flex items-center justify-between text-left p-3 rounded-lg hover:bg-primary/10 dark:hover:bg-accent-blue/20 transition-colors interactive-scale">
+                        <button 
+                            onClick={() => navigate('/app/settings/accounts')}
+                            className="w-full flex items-center justify-between text-left p-3 rounded-lg hover:bg-primary/10 dark:hover:bg-accent-blue/20 transition-colors interactive-scale">
                             <span className="text-base font-medium text-text-light dark:text-text-dark">Bank Accounts</span>
                             <span className="material-symbols-outlined text-subtext-light dark:text-subtext-dark" aria-hidden="true">chevron_right</span>
                         </button>

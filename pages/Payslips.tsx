@@ -1,23 +1,25 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import type { Payslip } from '../types';
-import { getFirestoreData } from '../services/api';
+
+const payslipsData: Payslip[] = [
+    { id: '1', monthYear: 'January 2024', amount: '₦120,000.00' },
+    { id: '2', monthYear: 'December 2023', amount: '₦150,000.00' },
+    { id: '3', monthYear: 'November 2023', amount: '₦110,000.00' },
+    { id: '4', monthYear: 'October 2023', amount: '₦125,000.00' },
+    { id: '5', monthYear: 'September 2023', amount: '₦180,000.00' },
+    { id: '6', monthYear: 'August 2023', amount: '₦95,000.00' },
+];
 
 const PayslipItem: React.FC<{ payslip: Payslip }> = ({ payslip }) => (
-    <Link to={`/app/payslip/${payslip.id}`} className="block bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 group">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="text-lg font-bold text-text-light dark:text-text-dark">{payslip.monthYear}</p>
-                <p className="text-2xl font-light text-subtext-light dark:text-subtext-dark mt-1">{payslip.amount}</p>
-            </div>
-            <div className="text-right">
-                <p className="text-xs font-medium uppercase tracking-wider text-subtext-light dark:text-subtext-dark">Status</p>
-                <p className="text-sm font-semibold text-success-light dark:text-success-dark mt-1">Paid</p>
-            </div>
+    <Link to={`/payslip/${payslip.id}`} className="flex items-center justify-between py-4 group">
+        <div>
+            <p className="text-base font-medium text-text-light dark:text-text-dark">{payslip.monthYear}</p>
+            <p className="text-sm text-subtext-light dark:text-subtext-dark">{payslip.amount}</p>
         </div>
-        <div className="mt-6 flex justify-end items-center">
-            <span className="text-sm font-semibold text-primary dark:text-accent-blue group-hover:underline">View Payslip</span>
-            <span className="material-symbols-outlined text-primary dark:text-accent-blue ml-2 transform-gpu transition-transform group-hover:translate-x-1">arrow_forward</span>
+        <div className="flex items-center space-x-4">
+            <span className="text-xs font-semibold text-white bg-primary py-1 px-3 rounded-full hidden group-hover:inline">View</span>
+            <span className="material-symbols-outlined text-subtext-light dark:text-subtext-dark group-hover:text-accent-blue" aria-hidden="true">chevron_right</span>
         </div>
     </Link>
 );
@@ -25,68 +27,77 @@ const PayslipItem: React.FC<{ payslip: Payslip }> = ({ payslip }) => (
 const parseAmount = (amountStr: string) => parseFloat(amountStr.replace(/[₦,]/g, ''));
 
 const Payslips: React.FC = () => {
+    const navigate = useNavigate();
     const [sortOrder, setSortOrder] = useState<'date-desc' | 'amount-asc' | 'amount-desc'>('date-desc');
-    const [payslips, setPayslips] = useState<Payslip[]>([]);
-
-    useEffect(() => {
-        const fetchPayslips = async () => {
-            const payslipsData = await getFirestoreData<Payslip>("payslips");
-            setPayslips(payslipsData);
-        };
-
-        fetchPayslips();
-    }, []);
 
     const sortedPayslips = useMemo(() => {
-        const sorted = [...payslips];
+        const sorted = [...payslipsData];
         if (sortOrder === 'amount-asc') {
             return sorted.sort((a, b) => parseAmount(a.amount) - parseAmount(b.amount));
         }
         if (sortOrder === 'amount-desc') {
             return sorted.sort((a, b) => parseAmount(b.amount) - parseAmount(a.amount));
         }
-        // Default to date-desc
-        return sorted.sort((a, b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime());
-    }, [sortOrder, payslips]);
+        // 'date-desc' is the original order, so return the copy
+        return sorted;
+    }, [sortOrder]);
 
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8">
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-text-light dark:text-text-dark">Payslips</h1>
-                <p className="text-subtext-light dark:text-subtext-dark mt-1">Review your payslip history.</p>
+        <div className="flex flex-col min-h-screen">
+            <header className="sticky top-0 z-10 bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+                <div className="container mx-auto px-4">
+                    <div className="flex items-center justify-center h-16">
+                        <h1 className="text-lg font-bold text-text-light dark:text-text-dark">Payslips</h1>
+                    </div>
+                </div>
             </header>
+            <main className="flex-1 overflow-y-auto">
+                <div className="container mx-auto px-4 py-4 space-y-6">
+                    <div className="bg-primary text-white rounded-xl p-6 shadow-lg text-center interactive-scale">
+                        <span className="material-symbols-outlined text-4xl text-white/80" aria-hidden="true">auto_graph</span>
+                        <h2 className="text-xl font-bold mt-2">Your 2026 Salary Preview</h2>
+                        <p className="mt-1 opacity-90">See how much you’ll take home under the new tax law.</p>
+                        <Link to="/app/tax-companion/paye-calculator" className="inline-block bg-white text-primary font-bold py-3 px-6 rounded-lg mt-4 interactive-scale">
+                            Calculate Now
+                        </Link>
+                        <p className="text-xs opacity-70 mt-4">ⓘ 90% of Nigerians pay less or zero</p>
+                    </div>
 
-            <div className="mb-6 flex justify-end">
-                 <div className="relative">
-                    <label htmlFor="sort-payslips" className="sr-only">Sort payslips</label>
-                    <select
-                        id="sort-payslips"
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
-                        className="form-select appearance-none rounded-lg bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark focus:ring-primary focus:border-primary h-12 pl-4 pr-10 text-base"
-                    >
-                        <option value="date-desc">Sort by Date (Newest)</option>
-                        <option value="amount-asc">Sort by Amount (Low to High)</option>
-                        <option value="amount-desc">Sort by Amount (High to Low)</option>
-                    </select>
-                    <span className="material-symbols-outlined absolute top-1/2 right-3 -translate-y-1/2 text-subtext-light dark:text-subtext-dark pointer-events-none" aria-hidden="true">
-                        expand_more
-                    </span>
-                </div>
-            </div>
+                    <div className="bg-green-600 text-white rounded-xl p-6 shadow-lg text-center interactive-scale">
+                        <span className="material-symbols-outlined text-4xl text-white/80" aria-hidden="true">real_estate_agent</span>
+                        <h2 className="text-xl font-bold mt-2">Claim Rent Relief</h2>
+                        <p className="mt-1 opacity-90">Upload your rent receipt to save on your 2026 tax.</p>
+                        <Link to="/app/tax-companion/rent-relief" className="inline-block bg-white text-green-600 font-bold py-3 px-6 rounded-lg mt-4 interactive-scale">
+                            Claim Now
+                        </Link>
+                        <p className="text-xs opacity-70 mt-4">ⓘ Takes less than 60 seconds</p>
+                    </div>
 
-            {sortedPayslips.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sortedPayslips.map(payslip => <PayslipItem key={payslip.id} payslip={payslip} />)}
+
+                     <div className="flex justify-end">
+                        <div className="relative">
+                            <label htmlFor="sort-payslips" className="sr-only">Sort payslips</label>
+                            <select
+                                id="sort-payslips"
+                                value={sortOrder}
+                                onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
+                                className="form-select w-full appearance-none rounded-lg bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark focus:ring-primary focus:border-primary h-12 pl-4 pr-10 text-base"
+                            >
+                                <option value="date-desc">Sort by Date (Newest)</option>
+                                <option value="amount-asc">Sort by Amount (Low to High)</option>
+                                <option value="amount-desc">Sort by Amount (High to Low)</option>
+                            </select>
+                             <span className="material-symbols-outlined absolute top-1/2 right-3 -translate-y-1/2 text-subtext-light dark:text-subtext-dark pointer-events-none" aria-hidden="true">
+                                expand_more
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col divide-y divide-border-light dark:divide-border-dark">
+                        {sortedPayslips.map(payslip => <PayslipItem key={payslip.id} payslip={payslip} />)}
+                    </div>
                 </div>
-            ) : (
-                <div className="text-center py-20 bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm">
-                    <span className="material-symbols-outlined text-6xl text-subtext-light dark:text-subtext-dark" aria-hidden="true">receipt_long</span>
-                    <p className="mt-4 text-xl font-semibold">No Payslips Available</p>
-                    <p className="text-subtext-light dark:text-subtext-dark mt-2">Your payslips will appear here as soon as they are ready.</p>
-                </div>
-            )}
+            </main>
         </div>
     );
 };

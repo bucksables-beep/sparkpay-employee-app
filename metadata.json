@@ -1,5 +1,7 @@
 {
   "name": "Sparkpay employee app",
   "description": "A financial hub application for seamless transactions and smart money management, allowing users to view dashboards, manage accounts, see payslips, and edit their profile.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera"
+  ]
 }
