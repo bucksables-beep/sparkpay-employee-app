@@ -12,7 +12,7 @@ import Reimbursements from './pages/Reimbursements';
 import NewReimbursement from './pages/NewReimbursement';
 import { ThemeProvider } from './contexts/ThemeContext';
 import AcceptInvite from './pages/AcceptInvite';
-import AIAssistant from './pages/AIAssistant';
+import TaxBuddy from './pages/AIAssistant';
 import PAYECalculator from './pages/PAYECalculator';
 import TaxBadges from './pages/TaxBadges';
 import RentRelief from './pages/RentRelief';
@@ -35,11 +35,11 @@ const App: React.FC = () => {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="payslips" element={<Payslips />} />
               <Route path="reimbursements" element={<Reimbursements />} />
-              <Route path="ai-assistant" element={<AIAssistant />} />
-              <Route path="tax-companion/paye-calculator" element={<PAYECalculator />} />
-              <Route path="tax-companion/tax-badges" element={<TaxBadges />} />
-              <Route path="tax-companion/rent-relief" element={<RentRelief />} />
-              <Route path="tax-companion/chatbot" element={<TaxChatbot />} />
+              <Route path="tax-buddy" element={<TaxBuddy />} />
+              <Route path="tax-buddy/paye-calculator" element={<PAYECalculator />} />
+              <Route path="tax-buddy/tax-badges" element={<TaxBadges />} />
+              <Route path="tax-buddy/rent-relief" element={<RentRelief />} />
+              <Route path="tax-buddy/chatbot" element={<TaxChatbot />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<Settings />} />
               <Route path="settings/accounts" element={<Accounts />} />

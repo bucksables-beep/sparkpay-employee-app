@@ -40,7 +40,7 @@ const BottomNav: React.FC = () => {
       <nav className="flex justify-around items-center h-20">
         <NavItem to="/app/dashboard" icon="home" label="Dashboard" />
         <NavItem to="/app/payslips" icon="receipt_long" label="Payslips" />
-        <NavItem to="/app/ai-assistant" icon="percent" label="Taxes" />
+        <NavItem to="/app/tax-buddy" icon="percent" label="Taxes" />
         <NavItem to="/app/notifications" icon="notifications" label="Notifications" />
         <NavItem to="/app/settings" icon="settings" label="Settings" />
       </nav>

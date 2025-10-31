@@ -148,7 +148,7 @@ const Dashboard: React.FC = () => {
                         <QuickAction to="/salary-advance" icon="request_quote" label="Salary Advance" color="orange" />
                         <QuickAction to="/reimbursements" icon="receipt" label="Reimbursements" color="green" />
                         <QuickAction to="/app/payslips" icon="receipt_long" label="View Payslips" color="blue" />
-                        <QuickAction to="/app/ai-assistant" icon="percent" label="Tax Companion" color="purple" />
+                        <QuickAction to="/app/tax-buddy" icon="percent" label="Tax Buddy" color="purple" />
                     </div>
                 </section>
 

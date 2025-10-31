@@ -58,7 +58,7 @@ const Payslips: React.FC = () => {
                         <span className="material-symbols-outlined text-4xl text-white/80" aria-hidden="true">auto_graph</span>
                         <h2 className="text-xl font-bold mt-2">Your 2026 Salary Preview</h2>
                         <p className="mt-1 opacity-90">See how much you’ll take home under the new tax law.</p>
-                        <Link to="/app/tax-companion/paye-calculator" className="inline-block bg-white text-primary font-bold py-3 px-6 rounded-lg mt-4 interactive-scale">
+                        <Link to="/app/tax-buddy/paye-calculator" className="inline-block bg-white text-primary font-bold py-3 px-6 rounded-lg mt-4 interactive-scale">
                             Calculate Now
                         </Link>
                         <p className="text-xs opacity-70 mt-4">ⓘ 90% of Nigerians pay less or zero</p>
@@ -68,7 +68,7 @@ const Payslips: React.FC = () => {
                         <span className="material-symbols-outlined text-4xl text-white/80" aria-hidden="true">real_estate_agent</span>
                         <h2 className="text-xl font-bold mt-2">Claim Rent Relief</h2>
                         <p className="mt-1 opacity-90">Upload your rent receipt to save on your 2026 tax.</p>
-                        <Link to="/app/tax-companion/rent-relief" className="inline-block bg-white text-green-600 font-bold py-3 px-6 rounded-lg mt-4 interactive-scale">
+                        <Link to="/app/tax-buddy/rent-relief" className="inline-block bg-white text-green-600 font-bold py-3 px-6 rounded-lg mt-4 interactive-scale">
                             Claim Now
                         </Link>
                         <p className="text-xs opacity-70 mt-4">ⓘ Takes less than 60 seconds</p>
