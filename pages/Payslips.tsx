@@ -1,94 +1,165 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import type { Payslip } from '../types';
-import { getFirestoreData } from '../services/api';
+import React from "react";
+import { Link } from "react-router-dom";
+import EmptyState from "../components/EmptyState";
+import { Pagination } from "../components/Pagination";
+import { usePayslips } from "../hooks/usePayslips";
 
-const PayslipItem: React.FC<{ payslip: Payslip }> = ({ payslip }) => (
-    <Link to={`/app/payslip/${payslip.id}`} className="block bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 group">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="text-lg font-bold text-text-light dark:text-text-dark">{payslip.monthYear}</p>
-                <p className="text-2xl font-light text-subtext-light dark:text-subtext-dark mt-1">{payslip.amount}</p>
-            </div>
-            <div className="text-right">
-                <p className="text-xs font-medium uppercase tracking-wider text-subtext-light dark:text-subtext-dark">Status</p>
-                <p className="text-sm font-semibold text-success-light dark:text-success-dark mt-1">Paid</p>
-            </div>
-        </div>
-        <div className="mt-6 flex justify-end items-center">
-            <span className="text-sm font-semibold text-primary dark:text-accent-blue group-hover:underline">View Payslip</span>
-            <span className="material-symbols-outlined text-primary dark:text-accent-blue ml-2 transform-gpu transition-transform group-hover:translate-x-1">arrow_forward</span>
-        </div>
-    </Link>
+const TableSkeleton: React.FC = () => (
+  <>
+    {Array.from({ length: 5 }).map((_, index) => (
+      <tr key={index} className="animate-pulse">
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="h-5 bg-background-light dark:bg-background-dark rounded w-24"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="h-4 bg-background-light dark:bg-background-dark rounded w-32"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="h-4 bg-background-light dark:bg-background-dark rounded w-40"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="h-6 bg-background-light dark:bg-background-dark rounded-full w-16"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="h-4 bg-background-light dark:bg-background-dark rounded w-24"></div>
+        </td>
+      </tr>
+    ))}
+  </>
 );
 
-const parseAmount = (amountStr: string) => parseFloat(amountStr.replace(/[₦,]/g, ''));
-
 const Payslips: React.FC = () => {
-    const [sortOrder, setSortOrder] = useState<'date-desc' | 'amount-asc' | 'amount-desc'>('date-desc');
-    const [payslips, setPayslips] = useState<Payslip[]>([]);
+  const { payslips, paginationMeta, handlePageChange, isLoading } =
+    usePayslips();
 
-    useEffect(() => {
-        const fetchPayslips = async () => {
-            const payslipsData = await getFirestoreData<Payslip>("payslips");
-            setPayslips(payslipsData);
-        };
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-text-light dark:text-text-dark">
+          Payslips
+        </h1>
+        <p className="text-subtext-light dark:text-subtext-dark mt-1">
+          Review your payslip history.
+        </p>
+      </header>
 
-        fetchPayslips();
-    }, []);
-
-    const sortedPayslips = useMemo(() => {
-        const sorted = [...payslips];
-        if (sortOrder === 'amount-asc') {
-            return sorted.sort((a, b) => parseAmount(a.amount) - parseAmount(b.amount));
-        }
-        if (sortOrder === 'amount-desc') {
-            return sorted.sort((a, b) => parseAmount(b.amount) - parseAmount(a.amount));
-        }
-        // Default to date-desc
-        return sorted.sort((a, b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime());
-    }, [sortOrder, payslips]);
-
-
-    return (
-        <div className="p-4 sm:p-6 lg:p-8">
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-text-light dark:text-text-dark">Payslips</h1>
-                <p className="text-subtext-light dark:text-subtext-dark mt-1">Review your payslip history.</p>
-            </header>
-
-            <div className="mb-6 flex justify-end">
-                 <div className="relative">
-                    <label htmlFor="sort-payslips" className="sr-only">Sort payslips</label>
-                    <select
-                        id="sort-payslips"
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
-                        className="form-select appearance-none rounded-lg bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark focus:ring-primary focus:border-primary h-12 pl-4 pr-10 text-base"
-                    >
-                        <option value="date-desc">Sort by Date (Newest)</option>
-                        <option value="amount-asc">Sort by Amount (Low to High)</option>
-                        <option value="amount-desc">Sort by Amount (High to Low)</option>
-                    </select>
-                    <span className="material-symbols-outlined absolute top-1/2 right-3 -translate-y-1/2 text-subtext-light dark:text-subtext-dark pointer-events-none" aria-hidden="true">
-                        expand_more
-                    </span>
-                </div>
-            </div>
-
-            {sortedPayslips.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sortedPayslips.map(payslip => <PayslipItem key={payslip.id} payslip={payslip} />)}
-                </div>
-            ) : (
-                <div className="text-center py-20 bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm">
-                    <span className="material-symbols-outlined text-6xl text-subtext-light dark:text-subtext-dark" aria-hidden="true">receipt_long</span>
-                    <p className="mt-4 text-xl font-semibold">No Payslips Available</p>
-                    <p className="text-subtext-light dark:text-subtext-dark mt-2">Your payslips will appear here as soon as they are ready.</p>
-                </div>
-            )}
+      {isLoading && payslips.length === 0 ? (
+        <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                    Amount
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                    Date
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                    Organization
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                    View Payslip
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                <TableSkeleton />
+              </tbody>
+            </table>
+          </div>
         </div>
-    );
+      ) : paginationMeta.total > 0 ? (
+        <>
+          <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden relative">
+            {isLoading && (
+              <div className="absolute inset-0 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm z-10 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            )}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                      Amount
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                      Date
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                      Organization
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
+                      View Payslip
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                  {payslips.map((payslip) => (
+                    <tr
+                      key={payslip.id}
+                      className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-lg font-semibold text-text-light dark:text-text-dark">
+                          {payslip.amount}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-base text-text-light dark:text-text-dark">
+                          {payslip.monthYear}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-base text-subtext-light dark:text-subtext-dark">
+                          {payslip.organization || "N/A"}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center text-sm font-semibold px-2.5 py-0.5 rounded-full bg-success-light/10 text-success-light dark:bg-success-dark/20 dark:text-success-dark">
+                          {payslip.status || "Paid"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Link
+                          to={`/app/payslip/${payslip.id}`}
+                          className="inline-flex items-center text-sm font-semibold text-primary dark:text-accent-blue hover:underline group"
+                        >
+                          View Payslip
+                          <span className="material-symbols-outlined ml-2 transform-gpu transition-transform group-hover:translate-x-1">
+                            arrow_forward
+                          </span>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <Pagination
+            meta={paginationMeta}
+            onPageChange={handlePageChange}
+            itemName="payslips"
+          />
+        </>
+      ) : (
+        <EmptyState
+          icon="receipt_long"
+          title="No Payslips Available"
+          message="Your payslips will appear here as soon as they are ready."
+        />
+      )}
+    </div>
+  );
 };
 
 export default Payslips;

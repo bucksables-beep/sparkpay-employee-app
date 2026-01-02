@@ -10,6 +10,11 @@ export interface Payment {
   netSalary: string;
   createdAt: string;
   payoutStatus: string;
+  employee: {
+    company: {
+      name: string;
+    };
+  };
 }
 
 export interface Notification {
@@ -25,6 +30,17 @@ export interface Payslip {
   id: string;
   monthYear: string;
   amount: string;
+  organization?: string;
+  status?: string;
+  // API response structure (similar to Payment)
+  netSalary?: string;
+  createdAt?: string;
+  payoutStatus?: string;
+  employee?: {
+    company: {
+      name: string;
+    };
+  };
 }
 
 export interface PayslipDetail {

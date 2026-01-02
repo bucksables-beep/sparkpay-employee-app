@@ -16,7 +16,7 @@ const Dashboard: React.FC = () => {
           Welcome, {user?.firstname}!
         </h1>
         <p className="text-subtext-light dark:text-subtext-dark mt-1">
-          Here is a summary of your activities
+          Here is a summary of your activities.
         </p>
       </header>
 
