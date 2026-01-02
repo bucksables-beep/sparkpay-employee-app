@@ -55,6 +55,7 @@ export interface PayslipDetail {
   grossEarnings: number;
   totalDeductions: number;
   netSalary: number;
+  organization: string;
 }
 
 export interface Reimbursement {
