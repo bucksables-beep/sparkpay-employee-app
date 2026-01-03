@@ -12,11 +12,13 @@ type InputProps = {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
   error?: string;
   touched?: boolean;
   helperText?: string;
   icon?: string;
   hideLabel?: boolean;
+  readonly?: boolean;
 };
 
 export const Input: React.FC<InputProps> = ({
@@ -30,11 +32,13 @@ export const Input: React.FC<InputProps> = ({
   value,
   onChange,
   onBlur,
+  onPaste,
   error,
   touched,
   helperText,
   icon,
   hideLabel = false,
+  readonly = false,
 }) => {
   return (
     <div>
@@ -79,6 +83,8 @@ export const Input: React.FC<InputProps> = ({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          onPaste={onPaste}
+          readOnly={readonly}
         />
       </div>
       {error && touched && <p className="mt-1 text-sm text-red-500">{error}</p>}

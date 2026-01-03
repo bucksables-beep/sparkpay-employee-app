@@ -6,6 +6,7 @@ export interface User {
   firstname: string;
   lastname: string;
   avatar?: string;
+  phonenumber?: string;
   country: {
     currency: string;
   };
