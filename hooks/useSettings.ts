@@ -120,14 +120,12 @@ export const useSettings = () => {
   // Handler for avatar upload
   const handleAvatarUpload = async (file: File) => {
     try {
-      // Convert file to base64
-      const base64Data = await new Promise<string>((resolve, reject) => {
+      // Convert file to data URL
+      const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
-          // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
-          const base64 = result.split(",")[1];
-          resolve(base64);
+          resolve(result);
         };
         reader.onerror = reject;
         reader.readAsDataURL(file);
@@ -136,7 +134,7 @@ export const useSettings = () => {
       // Prepare avatarFile object
       const avatarFile = {
         filename: file.name,
-        data: base64Data,
+        data: dataUrl,
       };
 
       // Upload avatar
