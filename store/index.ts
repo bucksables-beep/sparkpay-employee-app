@@ -7,8 +7,15 @@ export interface User {
   lastname: string;
   avatar?: string;
   phonenumber?: string;
+  bankId?: string;
+  bank?: {
+    id: string;
+    name: string;
+  };
+  accountNumber?: string;
   country: {
     currency: string;
+    id: string;
   };
 }
 

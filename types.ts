@@ -68,3 +68,9 @@ export interface Reimbursement {
   status: "Pending" | "Approved" | "Rejected";
   receiptUrl?: string;
 }
+
+export interface Bank {
+  id: string;
+  name: string;
+  code?: string;
+}
