@@ -2,7 +2,7 @@ import React from "react";
 import { useAcceptInvite } from "../hooks/useOnboardingInvite";
 import { PasswordInput } from "../components/PasswordInput";
 import { Input } from "../components/Input";
-import { SparkpayLogo } from "../components/SparkpayLogo";
+// import { SparkpayLogo } from "../components/SparkpayLogo";
 import { Button } from "../components/Button";
 
 const AcceptInvite: React.FC = () => {
@@ -29,7 +29,7 @@ const AcceptInvite: React.FC = () => {
     <div className="flex min-h-screen flex-col justify-center bg-background-light p-6 dark:bg-background-dark">
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-6 flex justify-center">
-          <SparkpayLogo />
+          {/* <SparkpayLogo /> */}
         </div>
 
         <div className="mb-8 text-center">
