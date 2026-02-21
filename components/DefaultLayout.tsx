@@ -1,11 +1,13 @@
 import React from "react";
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import BottomNav from "./BottomNav";
 import Sidebar from "./Sidebar";
 import { useDefaultLayout } from "../hooks/useDefaultLayout";
 
 const DefaultLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useDefaultLayout();
+  const location = useLocation();
+  const isPayslipDetail = /^\/app\/payslip\/[^/]+$/.test(location.pathname);
 
   if (isLoading) {
     return (
@@ -26,16 +28,18 @@ const DefaultLayout: React.FC = () => {
         <Sidebar />
       </div>
 
-      {/* Main content */}
-      <div className="flex flex-col flex-1">
-        <main className="flex-1 overflow-y-auto pb-24 md:pb-0">
+      {/* Main content - min-w-0 prevents flex overflow from causing horizontal page scroll */}
+      <div className="flex flex-col flex-1 min-w-0">
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pb-24 md:pb-0">
           <Outlet />
         </main>
 
-        {/* BottomNav for small screens */}
-        <div className="md:hidden">
-          <BottomNav />
-        </div>
+        {/* BottomNav for small screens - hidden on payslip detail to avoid overlapping its footer */}
+        {!isPayslipDetail && (
+          <div className="md:hidden">
+            <BottomNav />
+          </div>
+        )}
       </div>
     </div>
   );

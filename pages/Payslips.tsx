@@ -33,7 +33,7 @@ const Payslips: React.FC = () => {
     usePayslips();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <div className="min-w-0 overflow-x-hidden p-4 sm:p-6 lg:p-8">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-text-light dark:text-text-dark">
           Payslips
@@ -44,9 +44,9 @@ const Payslips: React.FC = () => {
       </header>
 
       {isLoading && payslips.length === 0 ? (
-        <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden min-w-0">
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full min-w-[600px]">
               <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
@@ -74,14 +74,14 @@ const Payslips: React.FC = () => {
         </div>
       ) : paginationMeta.total > 0 ? (
         <>
-          <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden relative">
+          <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm overflow-hidden relative min-w-0">
             {isLoading && (
               <div className="absolute inset-0 bg-surface-light/80 dark:bg-surface-dark/80 backdrop-blur-sm z-10 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
               </div>
             )}
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full min-w-[600px]">
                 <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-subtext-light dark:text-subtext-dark">
